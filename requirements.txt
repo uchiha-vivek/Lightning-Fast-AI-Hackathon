@@ -1,0 +1,9 @@
+streamlit
+python-dotenv==1.0.0
+requests
+sseclient-py==1.8.0
+pdf2image==1.17.0
+PyPDF2
+ipython
+streamlit-cropper 
+pillow

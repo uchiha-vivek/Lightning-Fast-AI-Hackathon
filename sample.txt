@@ -1,0 +1,33 @@
+import os
+from dotenv import load_dotenv
+import openai
+
+# Load environment variables
+load_dotenv()
+
+# Initialize the OpenAI client
+client = openai.OpenAI(
+    api_key=os.environ.get("SAMBANOVA_API_KEY"),
+    base_url="https://api.sambanova.ai/v1",
+)
+
+# Loop to allow dynamic user input
+while True:
+    user_input = input("You: ")  # Get input from the user
+    if user_input.lower() in ['exit', 'quit']:  # Break the loop if the user types "exit" or "quit"
+        print("Goodbye!")
+        break
+
+    # Send the user input to the API
+    response = client.chat.completions.create(
+        model='Meta-Llama-3.1-8B-Instruct',
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant"},
+            {"role": "user", "content": user_input}
+        ],
+        temperature=0.1,
+        top_p=0.1
+    )
+
+    # Print the assistant's response
+    print(f"Assistant: {response.choices[0].message.content}")
