@@ -8,3 +8,4 @@ ipython
 streamlit-cropper 
 pillow
 openai
+opencv-python
