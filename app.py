@@ -12,7 +12,7 @@ lvlm = SambastudioMultimodal(
     model="Llama-3.2-11B-Vision-Instruct",
     temperature=0.01,
     max_tokens_to_generate=1024,
-    api_key=st.secrets["SAMBANOVA_API_KEY"],  # Access API key from secrets.toml
+    api_key=st.secrets["SAMBANOVA_API_KEY"] ,
     base_url="https://api.sambanova.ai/v1/chat/completions",
 )
 
