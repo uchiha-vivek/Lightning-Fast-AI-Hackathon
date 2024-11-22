@@ -4,10 +4,15 @@ import base64
 import streamlit as st
 from PIL import Image
 from io import BytesIO
+from dotenv import load_dotenv
 from streamlit_cropper import st_cropper
 from utils.model_wrappers.multimodal_models import SambastudioMultimodal
+import openai
 
-# Initialize the SambastudioMultimodal model
+# Load environment variables
+load_dotenv()
+
+# Initialize SambastudioMultimodal model
 lvlm = SambastudioMultimodal(
     model="Llama-3.2-11B-Vision-Instruct",
     temperature=0.01,
@@ -16,16 +21,35 @@ lvlm = SambastudioMultimodal(
     base_url="https://api.sambanova.ai/v1/chat/completions",
 )
 
-# Streamlit UI with Sidebar
-st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to:", ["Introduction", "Demonstration"])
+# Initialize OpenAI client for Material Science chatbot
+openai_client = openai.OpenAI(
+    api_key=os.environ.get("SAMBANOVA_API_KEY"),
+    base_url="https://api.sambanova.ai/v1",
+)
 
-if section == "Introduction":
-    st.title("Introduction")
-    st.write("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
-    st.write("Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
+# Sidebar Navigation
+st.sidebar.title("MatriExpert")
+section = st.sidebar.radio("Go to:", ["MatriXpert", "ImageAnalyzer", "Assitant"])
 
-elif section == "Demonstration":
+# Introduction Section
+if section == "MatriXpert":
+    st.title("Welcome to MatriXpert")
+    st.write("""
+    Welcome to one stop platform for **Material Science**!
+
+    The application allows you to upload images related to **Material Science** and then you can take queries from it . 
+
+    Key features of the application:
+    - Upload and process images of material microstructures  and any Material related stuff .
+    - Crop and focus on areas of interest.
+    - Ask specific questions to get insights about your image.
+    - Query Assistant to answer your questions related to Material Science
+
+     
+    """)
+
+# Demonstration Section
+elif section == "ImageAnalyzer":
     st.title("Enhanced Image Upload and Query Processing")
     st.write("""
         - Upload multiple images or provide a URL.
@@ -125,5 +149,37 @@ elif section == "Demonstration":
                 st.write(f"**Query {idx + 1}:** {history_item['query']}")
                 st.write(f"**Response {idx + 1}:** {history_item['response']}")
 
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+
+# Material Science Chatbot Section
+elif section == "Assitant":
+    st.title("Material Science Chatbot")
+    st.write("Ask the chatbot any questions related to Material Science and get instant answers!")
+
+    user_input = st.text_input("Enter your question here:")
+    if user_input:
+        try:
+            # Send the user input to the API
+            response = openai_client.chat.completions.create(
+                model='Meta-Llama-3.1-8B-Instruct',
+                messages=[
+    {
+        "role": "system",
+        "content": (
+            "You are an expert assistant specializing in all aspects of material science. "
+            "Your role is to provide clear and accurate explanations about material properties, structures, processing techniques, "
+            "failure mechanisms, and their applications in real-world scenarios. You are capable of analyzing complex material science problems, "
+            "explaining fundamental concepts, and offering insights on advanced topics such as crystallography, thermodynamics, and material characterization methods."
+        )
+    },
+    {"role": "user", "content": user_input}
+],
+                temperature=0.1,
+                top_p=0.1
+            )
+            # Display the assistant's response
+            st.write("**Assistant:**")
+            st.write(response.choices[0].message.content)
         except Exception as e:
             st.error(f"An error occurred: {e}")
